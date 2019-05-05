@@ -1,0 +1,8 @@
+# Directories
+bin/
+obj/
+.vscode
+
+# Files
+*.sh
+
