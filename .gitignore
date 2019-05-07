@@ -1,8 +1,10 @@
 # Directories
-bin/
-obj/
+build/
 .vscode
 
 # Files
 *.sh
+Makefile
+*.make
+
 
