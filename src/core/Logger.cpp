@@ -6,8 +6,6 @@
 #include <spdlog/spdlog.h>
 
 #include <iostream>
-#include <memory>
-#include <stdarg.h>
 #include <stdexcept>
 
 Logger::Logger()

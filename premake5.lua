@@ -1,6 +1,7 @@
 -- WORKSPACE --
 workspace 'Tuto'
 configurations {'Debug', 'Release'}
+location "build/" -- Generate all the files in build/
 
 -- PROJECT --
 project 'Tuto'
@@ -34,7 +35,7 @@ pchsource 'pch.cpp'
 
 objdir('build/obj')
 targetdir('build/bin/%{cfg.buildcfg}')
-targetname 'program.out'
+targetname 'program'
 
 filter {'configurations:Debug'}
 defines {'DEBUG'}

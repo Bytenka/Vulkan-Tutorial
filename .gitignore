@@ -1,10 +1,11 @@
 # Directories
 build/
-.vscode
+.vscode/
 
 # Files
-*.sh
 Makefile
+*.sh
 *.make
-
-
+*.vcxproj
+*.vcxproj.filters
+*.sln
