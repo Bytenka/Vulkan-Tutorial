@@ -24,3 +24,4 @@
 #include <vector>
 
 #include "core/Exception.hpp"
+#include "core/Logger.hpp"

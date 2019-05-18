@@ -15,6 +15,7 @@ Logger::Logger()
         spdlog::set_default_logger(m_console);
 
         m_console->set_level(spdlog::level::info);
+        m_console->set_pattern("[%T:%e] <%^%l%$> %v");
 
         // Do not use the LOG_* macros in the contructor
         m_console->trace("Initialized logger");
@@ -23,6 +24,7 @@ Logger::Logger()
         throw std::runtime_error("Failed to initialize logger: " + std::string(ex.what()));
     }
 }
+
 
 Logger::~Logger()
 {
