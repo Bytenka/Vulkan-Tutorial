@@ -1,7 +1,7 @@
 -- WORKSPACE --
 workspace 'Tuto'
 configurations {'Debug', 'Release'}
-location "build/" -- Generate all the files in build/
+location 'build/' -- Generate all the files in build/
 
 -- PROJECT --
 project 'Tuto'
@@ -18,10 +18,12 @@ files {
 }
 
 links {
-    'glfw'
+    'glfw',
+    'vulkan'
 }
 
 buildoptions {
+    '-m64', -- x64 build
     '-Wall',
     '-Winvalid-pch'
 }

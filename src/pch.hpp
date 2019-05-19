@@ -1,4 +1,5 @@
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>

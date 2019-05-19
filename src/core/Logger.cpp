@@ -21,13 +21,14 @@ Logger::Logger()
         m_console->trace("Initialized logger");
 
     } catch (const spdlog::spdlog_ex& ex) {
-        throw std::runtime_error("Failed to initialize logger: " + std::string(ex.what()));
+        throw std::runtime_error("Failed to initialize logger\n" + std::string(ex.what()));
     }
 }
 
 
 Logger::~Logger()
 {
+    m_console->trace("Destroyed logger");
 }
 
 // public:
@@ -46,6 +47,6 @@ void Logger::setLoggingLevel(Logger::LogLevel level) noexcept
         }
 
     } catch (const spdlog::spdlog_ex& ex) {
-        LOG_ERROR("Could not set logging level to {}: {}", level, ex.what());
+        LOG_ERROR("Could not set logging level to {}\n{}", level, ex.what());
     }
 }

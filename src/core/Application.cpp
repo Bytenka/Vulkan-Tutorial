@@ -3,6 +3,7 @@
 #include "Application.hpp"
 #include "Exception.hpp"
 #include "Logger.hpp"
+#include "VulkanCore.hpp"
 #include "graphics/Window.hpp"
 
 #include <csignal>
@@ -32,11 +33,15 @@ Application::Application()
         std::signal(SIGINT, Application::signalHandler);
 
 
+        m_vulkanCore = std::make_unique<VulkanCore>();
+
         // Register this instance
         Application::s_instance = this;
 
+        LOG_TRACE("Initialized Application");
+
     } catch (const std::runtime_error& ex) {
-        throw Exception("Failed to initialize Application: " + std::string(ex.what()));
+        throw Exception("Failed to initialize Application\n" + std::string(ex.what()));
     }
 }
 
@@ -55,16 +60,18 @@ Application::~Application()
     std::signal(SIGINT, SIG_DFL);
 
     Application::s_instance = nullptr;
+
+    LOG_TRACE("Closed Application");
 }
 
 // public:
 
 void Application::run(int argc, const char* argv[])
 {
-    Application app;
-    app.processCommandLineArgs(argc, argv);
-    LOG_TRACE("Initialized Application");
+    // Exit if command line args are invalid
+    if (!Application::processCommandLineArgs(argc, argv)) return;
 
+    Application app;
     app.createWindow(654, 498, "Test");
 
     while (!app.m_shouldStop) {
@@ -88,8 +95,6 @@ void Application::run(int argc, const char* argv[])
     }
 
     app.destroyAllWindows();
-
-    LOG_TRACE("Application terminating");
 }
 
 // private
@@ -114,40 +119,7 @@ void Application::errorCallbackGLFW(int error, const char* description)
 }
 
 
-void Application::createWindow(int width, int height, const std::string& title)
-{
-    auto newWindow = std::make_unique<Window>(width, height, title);
-
-    m_windows.insert({m_currentWindowID, std::move(newWindow)});
-
-    LOG_TRACE("Created new Window \"{}\" ({}, {}) with ID {}", title, width, height, m_currentWindowID);
-    m_currentWindowID++;
-}
-
-
-void Application::destroyWindow(WindowID id)
-{
-    auto it = m_windows.find(id);
-    if (it == m_windows.end()) {
-        LOG_WARN("Trying to destroy an invalid Window");
-        LOG_WARN("Window with ID {} does not exist");
-
-    } else {
-        m_windows.erase(it);
-        LOG_TRACE("Destroyed Window with ID {}", id);
-    }
-}
-
-
-void Application::destroyAllWindows() noexcept
-{
-    m_windows.clear();
-    m_currentWindowID = 0;
-    LOG_TRACE("Destroyed all windows");
-}
-
-
-void Application::processCommandLineArgs(int argc, const char* argv[])
+bool Application::processCommandLineArgs(int argc, const char* argv[]) noexcept
 {
     int i = 1;
     while (i < argc) {
@@ -160,8 +132,7 @@ void Application::processCommandLineArgs(int argc, const char* argv[])
                 int lvl = std::stoi(argv[i + 1]);  // Convertion errors are catched below
                 if (lvl < Logger::LogLevel::LOG_MIN || lvl > Logger::LogLevel::LOG_MAX) {
                     stdoutUsage();
-                    m_shouldStop = true;
-                    return;
+                    return false;
                 }
 
                 Logger::instance().setLoggingLevel(static_cast<Logger::LogLevel>(lvl));  // This cast is safe
@@ -169,16 +140,16 @@ void Application::processCommandLineArgs(int argc, const char* argv[])
 
             } catch (const std::exception& ex) {
                 stdoutUsage();
-                m_shouldStop = true;
-                return;
+                return false;
             }
         } else {
             stdoutUsage();
-            m_shouldStop = true;
-            return;
+            return false;
         }
         ++i;
     }
+
+    return true;
 }
 
 
@@ -191,4 +162,37 @@ void Application::stdoutUsage() noexcept
               << "  --debug-level LEVEL     Set the logging level. ([0-5], none=0, default=2)" << std::endl
 
               << std::endl;
+}
+
+
+void Application::createWindow(int width, int height, const std::string& title)
+{
+    auto newWindow = std::make_unique<Window>(width, height, title);
+
+    m_windows.insert({m_currentWindowID, std::move(newWindow)});
+
+    LOG_TRACE("Added Window \"{}\" to handler (WindowID: {})", title, m_currentWindowID);
+    m_currentWindowID++;
+}
+
+
+void Application::destroyWindow(WindowID id)
+{
+    auto it = m_windows.find(id);
+    if (it == m_windows.end()) {
+        LOG_WARN("Trying to destroy an invalid Window");
+        LOG_WARN("Window with ID {} does not exist");
+
+    } else {
+        LOG_TRACE("Removed Window \"{}\" from handler (WindowID: {})", it->second->getTitle(), it->first);
+        m_windows.erase(it);
+    }
+}
+
+
+void Application::destroyAllWindows() noexcept
+{
+    LOG_TRACE("Cleared Window handler");
+    m_windows.clear();
+    m_currentWindowID = 0;
 }
