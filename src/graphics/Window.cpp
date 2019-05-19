@@ -28,8 +28,8 @@ Window::Window(int width, int height, const std::string& title)
 
 Window::~Window()
 {
+    LOG_TRACE("Destroying Window \"{}\"", m_title);
     glfwDestroyWindow(m_glfwWindow);
-    LOG_TRACE("Destroyed Window \"{}\"", m_title);
 }
 
 // public

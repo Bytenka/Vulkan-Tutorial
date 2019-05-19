@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <algorithm>
+#include <map>
 
 VulkanCore::VulkanCore()
 {
@@ -16,13 +17,13 @@ VulkanCore::VulkanCore()
 #endif
 
     if (!glfwVulkanSupported())
-        throw Exception("The Vulkan API is not supported on this machine");
+        throw Exception("Vulkan is not available on this machine");
 
     VkApplicationInfo appInfo = {};  // Default everything to 0
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Hello Triangle";
+    appInfo.pApplicationName = nullptr;
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
+    appInfo.pEngineName = nullptr;
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -95,21 +96,73 @@ VulkanCore::VulkanCore()
     }
 
     LOG_TRACE("Initialized Vulkan instance");
+
+    setupPhysicalDevice();
 }
 
 VulkanCore::~VulkanCore()
 {
+    LOG_TRACE("Destroying Vulkan instance");
+
     if (m_usingValidationLayers)
         destroyDebugMessenger();
 
     vkDestroyInstance(m_vkInstance, nullptr);
-
-    LOG_TRACE("Destroyed Vulkan instance");
 }
 
 // public
 
 // private
+
+void VulkanCore::setupPhysicalDevice()
+{
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(m_vkInstance, &deviceCount, nullptr);
+
+    if (deviceCount == 0)
+        throw Exception("No GPU found with Vulkan support");
+
+    std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
+    vkEnumeratePhysicalDevices(m_vkInstance, &deviceCount, physicalDevices.data());
+
+    m_physicalDevice = pickPhysicalDevice(physicalDevices);
+
+    if (m_physicalDevice == VK_NULL_HANDLE)
+        throw Exception("No suitable GPU found");
+
+
+    VkPhysicalDeviceProperties debugDP;
+    vkGetPhysicalDeviceProperties(m_physicalDevice, &debugDP);
+    LOG_TRACE("Picked up physical device \"{}\" for rendering", debugDP.deviceName);
+}
+
+
+VkPhysicalDevice VulkanCore::pickPhysicalDevice(std::vector<VkPhysicalDevice>& devicesList) const noexcept
+{
+    std::multimap<unsigned long long, VkPhysicalDevice> sortedDevices;
+
+    for (auto& device : devicesList) {
+        VkPhysicalDeviceProperties dp;
+        VkPhysicalDeviceFeatures df;
+
+        vkGetPhysicalDeviceProperties(device, &dp);
+        vkGetPhysicalDeviceFeatures(device, &df);
+
+        unsigned long long score = 0;
+        // Add other criterias below
+        score += dp.limits.maxImageDimension2D;
+        if (dp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) score += 1000;
+        
+        // Add mandatory criterias below
+        if (!df.geometryShader) score = 0;
+
+        sortedDevices.insert({score, device});
+    }
+
+    auto it = sortedDevices.rbegin();  // Valid if !sortedDevices.empty()
+    return !sortedDevices.empty() && it->first > 0 ? it->second : VK_NULL_HANDLE;
+}
+
 
 const std::vector<const char*> VulkanCore::getValidationLayers() const noexcept
 {
@@ -234,10 +287,10 @@ void VulkanCore::setupDebugMessenger()
 
 
     if (createDebugUtilsMessengerEXT == nullptr)
-        throw Exception("vkCreateDebugUtilsMessengerEXT unavailable, extension is not loaded");
+        throw Exception("vkCreateDebugUtilsMessengerEXT unavailable, extension not loaded");
 
     if (createDebugUtilsMessengerEXT(m_vkInstance, &createInfo, nullptr, &m_debugMessenger) != VK_SUCCESS)
-        throw Exception("failed to set up create VkDebugUtilsMessengerEXT");
+        throw Exception("Failed to create VkDebugUtilsMessengerEXT");
 }
 
 

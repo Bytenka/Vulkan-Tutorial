@@ -28,7 +28,7 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-    m_console->trace("Destroyed logger");
+    m_console->trace("Destroying logger");
 }
 
 // public:

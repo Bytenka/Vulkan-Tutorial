@@ -48,6 +48,8 @@ Application::Application()
 
 Application::~Application()
 {
+    LOG_TRACE("Closing Application");
+
     // Make sure everything has been cleared before calling glfwTerminate
     if (m_windows.size() > 0) {
         LOG_TRACE("Destroying remaining Windows ({})", m_windows.size());
@@ -60,8 +62,6 @@ Application::~Application()
     std::signal(SIGINT, SIG_DFL);
 
     Application::s_instance = nullptr;
-
-    LOG_TRACE("Closed Application");
 }
 
 // public:
@@ -73,6 +73,7 @@ void Application::run(int argc, const char* argv[])
 
     Application app;
     app.m_mainWindowID = app.createWindow(654, 498, "Test");
+    app.createWindow(456, 723, "Test2");
 
     while (!app.m_shouldStop) {
         std::vector<WindowID> windowsToDestroy;
@@ -86,7 +87,7 @@ void Application::run(int argc, const char* argv[])
             if (currentWindow->shouldClose()) {
                 windowsToDestroy.push_back(w.first);
 
-                if (app.m_mainWindowID != NO_MAIN_WINDOW) {
+                if (w.first == app.m_mainWindowID) {
                     LOG_TRACE("Main Window resquested closing, terminating Application.");
                     app.m_shouldStop = true;
                 }
@@ -191,7 +192,7 @@ void Application::destroyWindow(WindowID id)
         LOG_WARN("Window with ID {} does not exist");
 
     } else {
-        LOG_TRACE("Removed Window \"{}\" from handler (WindowID: {})", it->second->getTitle(), it->first);
+        LOG_TRACE("Removing Window \"{}\" from handler (WindowID: {})", it->second->getTitle(), it->first);
         m_windows.erase(it);
     }
 }
@@ -199,7 +200,7 @@ void Application::destroyWindow(WindowID id)
 
 void Application::destroyAllWindows() noexcept
 {
-    LOG_TRACE("Cleared Window handler");
+    LOG_TRACE("Clearing Window handler");
     m_windows.clear();
     m_currentWindowID = FIRST_WINDOW_ID;
 }
