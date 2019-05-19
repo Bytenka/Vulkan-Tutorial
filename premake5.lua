@@ -7,7 +7,7 @@ location 'build/' -- Generate all the files in build/
 project 'Tuto'
 kind 'WindowedApp'
 language 'C++'
-cppdialect 'C++14'
+cppdialect 'C++17'
 flags {'Verbose', 'ShowCommandLine'}
 
 files {

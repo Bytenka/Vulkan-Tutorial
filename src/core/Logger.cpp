@@ -1,12 +1,12 @@
 #include "pch.hpp"
 
 #include "Logger.hpp"
+#include "Exception.hpp"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include <iostream>
-#include <stdexcept>
 
 Logger::Logger()
 {
@@ -21,7 +21,7 @@ Logger::Logger()
         m_console->trace("Initialized logger");
 
     } catch (const spdlog::spdlog_ex& ex) {
-        throw std::runtime_error("Failed to initialize logger\n" + std::string(ex.what()));
+        throw Exception("Failed to initialize logger\n" + std::string(ex.what()));
     }
 }
 

@@ -9,3 +9,4 @@ Makefile
 *.vcxproj
 *.vcxproj.filters
 *.sln
+*.ignore

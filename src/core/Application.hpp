@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.hpp"
 
-#include "VulkanCore.hpp"
+#include "vulkan/VulkanInstance.hpp"
 #include "graphics/Window.hpp"
 
 #include <map>
@@ -34,7 +34,7 @@ class Application
     WindowID m_mainWindowID = NO_MAIN_WINDOW;
     std::map<WindowID, std::unique_ptr<Window>> m_windows;
 
-    std::unique_ptr<VulkanCore> m_vulkanCore;
+    std::unique_ptr<VulkanInstance> m_VulkanInstance;
 
   private:
     static Application* s_instance;

@@ -10,6 +10,7 @@
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <optional>
 #include <utility>
 
 #include <array>

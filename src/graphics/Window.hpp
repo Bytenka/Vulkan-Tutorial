@@ -12,7 +12,7 @@ class Window
     explicit Window(int width, int height, const std::string& title);
     ~Window();
 
-    void update() const noexcept;
+    void update() const;
     bool shouldClose() noexcept;
     inline const std::string& getTitle() const noexcept { return m_title; }
 
