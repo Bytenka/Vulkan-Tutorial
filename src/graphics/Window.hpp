@@ -4,8 +4,6 @@
 
 #include <string>
 
-typedef unsigned long long WindowID;
-
 class Window
 {
   public:
@@ -14,8 +12,8 @@ class Window
     explicit Window(int width, int height, const std::string& title);
     ~Window();
 
-    void const update() noexcept;
-    bool const shouldClose() noexcept;
+    void update() const noexcept;
+    bool shouldClose() noexcept;
     inline const std::string& getTitle() const noexcept { return m_title; }
 
   private:

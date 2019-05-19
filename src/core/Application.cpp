@@ -72,7 +72,7 @@ void Application::run(int argc, const char* argv[])
     if (!Application::processCommandLineArgs(argc, argv)) return;
 
     Application app;
-    app.createWindow(654, 498, "Test");
+    app.m_mainWindowID = app.createWindow(654, 498, "Test");
 
     while (!app.m_shouldStop) {
         std::vector<WindowID> windowsToDestroy;
@@ -83,8 +83,14 @@ void Application::run(int argc, const char* argv[])
             auto& currentWindow = w.second;
 
 
-            if (currentWindow->shouldClose())
+            if (currentWindow->shouldClose()) {
                 windowsToDestroy.push_back(w.first);
+
+                if (app.m_mainWindowID != NO_MAIN_WINDOW) {
+                    LOG_TRACE("Main Window resquested closing, terminating Application.");
+                    app.m_shouldStop = true;
+                }
+            }
 
             currentWindow->update();
         }
@@ -165,14 +171,15 @@ void Application::stdoutUsage() noexcept
 }
 
 
-void Application::createWindow(int width, int height, const std::string& title)
+WindowID Application::createWindow(int width, int height, const std::string& title)
 {
+    WindowID cacheID = m_currentWindowID;
     auto newWindow = std::make_unique<Window>(width, height, title);
 
-    m_windows.insert({m_currentWindowID, std::move(newWindow)});
+    m_windows.insert({m_currentWindowID++, std::move(newWindow)});
 
-    LOG_TRACE("Added Window \"{}\" to handler (WindowID: {})", title, m_currentWindowID);
-    m_currentWindowID++;
+    LOG_TRACE("Added Window \"{}\" to handler (WindowID: {})", title, cacheID);
+    return cacheID;
 }
 
 
@@ -194,5 +201,5 @@ void Application::destroyAllWindows() noexcept
 {
     LOG_TRACE("Cleared Window handler");
     m_windows.clear();
-    m_currentWindowID = 0;
+    m_currentWindowID = FIRST_WINDOW_ID;
 }
