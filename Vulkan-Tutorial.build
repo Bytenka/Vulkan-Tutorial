@@ -1,0 +1,9 @@
+#!/bin/bash
+
+clear && clear
+echo "=== Generating Makefile ==="
+premake5 --file=premake5.lua --cc=clang gmake2
+echo 
+
+## Building project ##
+time make -C build/ config=debug -j
