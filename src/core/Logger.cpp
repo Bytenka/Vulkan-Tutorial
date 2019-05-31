@@ -1,7 +1,7 @@
 #include "pch.hpp"
 
-#include "Logger.hpp"
 #include "Exception.hpp"
+#include "Logger.hpp"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>

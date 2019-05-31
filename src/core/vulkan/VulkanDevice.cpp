@@ -10,7 +10,9 @@ VulkanDevice::VulkanDevice(VkInstance instance)
         // Debug / logging stuff
         VkPhysicalDeviceProperties debugDP;
         vkGetPhysicalDeviceProperties(m_physicalDevice, &debugDP);
-        LOG_TRACE("Picked up physical device \"{}\" for rendering", debugDP.deviceName);
+        LOG_TRACE("Selected physical device \"{}\" for rendering", debugDP.deviceName);
+
+        createLogicalDevice();
 
         LOG_TRACE("Initialized Vulkan device");
 
@@ -22,7 +24,10 @@ VulkanDevice::VulkanDevice(VkInstance instance)
 
 VulkanDevice::~VulkanDevice()
 {
-    LOG_TRACE("Destroying Vulkan device");
+    LOG_TRACE("Destroying Vulkan logical device");
+
+
+    vkDestroyDevice(m_logicalDevice, nullptr);
 }
 
 // public
@@ -45,6 +50,41 @@ void VulkanDevice::selectPhysicalDevice(VkInstance instance)
 
     if (m_physicalDevice == VK_NULL_HANDLE)
         throw Exception("No suitable GPU found");
+}
+
+
+void VulkanDevice::createLogicalDevice()
+{
+    QueueFamilyIndices indices = getPhysicalDeviceQueueFamilyIndices(m_physicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamilyIndex.value();
+
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+
+
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    // Legacy stuff, no longer used
+    createInfo.enabledLayerCount = 0;
+
+
+    if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_logicalDevice) != VK_SUCCESS)
+        throw Exception("Failed to create Vulkan logical device");
+
+
+    vkGetDeviceQueue(m_logicalDevice, indices.graphicsFamilyIndex.value(), 0, &m_graphicsQueue);
 }
 
 
@@ -89,7 +129,12 @@ VulkanDevice::QueueFamilyIndices VulkanDevice::getPhysicalDeviceQueueFamilyIndic
     uint32_t index = 0;
     for (auto& q : queueFamilies) {
         if (q.queueCount > 0) {
-            if (q.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            bool queueIsSuitable = true;
+            queueIsSuitable &= q.queueFlags & VK_QUEUE_GRAPHICS_BIT;
+
+#error "presentFamily not yet implemented, refactoring if needed here"
+
+            if (queueIsSuitable)
                 indices.graphicsFamilyIndex = index;
         }
 

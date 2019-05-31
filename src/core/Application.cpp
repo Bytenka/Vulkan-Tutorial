@@ -29,7 +29,7 @@ Application::Application()
 
         glfwSetErrorCallback(Application::errorCallbackGLFW);
 
-        m_VulkanInstance = std::make_unique<VulkanInstance>();
+        m_vulkanInstance = std::make_unique<VulkanInstance>();
 
         // Register this instance
         Application::s_instance = this;

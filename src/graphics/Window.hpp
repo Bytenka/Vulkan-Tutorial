@@ -1,9 +1,11 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 #include <string>
 
+class VulkanInstance;
 class Window
 {
   public:
@@ -18,6 +20,7 @@ class Window
 
   private:
     GLFWwindow* m_glfwWindow = nullptr;
+    VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     std::string m_title;
 
   public:

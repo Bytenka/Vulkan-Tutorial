@@ -4,6 +4,7 @@
 #include "VulkanInstance.hpp"
 #include "core/Logger.hpp"
 
+#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
 #include <algorithm>
@@ -100,7 +101,7 @@ VulkanInstance::VulkanInstance()
 
         // We may want to catch the creation of the VulkanDevice separately because
         // it does not technically prevent the instance from being initialized
-        m_vkDevice = std::make_unique<VulkanDevice>(m_vkInstance);
+        // m_vkDevice = std::make_unique<VulkanDevice>(m_vkInstance);
 
         LOG_TRACE("Initialized Vulkan instance");
 
@@ -113,6 +114,8 @@ VulkanInstance::VulkanInstance()
 VulkanInstance::~VulkanInstance()
 {
     LOG_TRACE("Destroying Vulkan instance");
+
+    m_vkDevice.reset();  // Delete VulkanDevice before destroying the instance
 
     if (m_usingValidationLayers)
         destroyDebugMessenger();

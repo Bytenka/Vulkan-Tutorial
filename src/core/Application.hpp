@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.hpp"
 
-#include "vulkan/VulkanInstance.hpp"
 #include "graphics/Window.hpp"
+#include "vulkan/VulkanInstance.hpp"
 
 #include <map>
 #include <memory>
@@ -14,6 +14,7 @@ typedef unsigned long long WindowID;
 class Application
 {
   public:
+    static inline const std::unique_ptr<VulkanInstance>& getVulkanInstance() noexcept { return s_instance->m_vulkanInstance; }
     static void run(int argc, const char* argv[]);
 
   private:
@@ -34,7 +35,7 @@ class Application
     WindowID m_mainWindowID = NO_MAIN_WINDOW;
     std::map<WindowID, std::unique_ptr<Window>> m_windows;
 
-    std::unique_ptr<VulkanInstance> m_VulkanInstance;
+    std::unique_ptr<VulkanInstance> m_vulkanInstance;
 
   private:
     static Application* s_instance;

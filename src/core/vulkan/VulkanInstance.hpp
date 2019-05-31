@@ -2,8 +2,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <optional>
 #include <memory>
+#include <optional>
 
 class VulkanDevice;
 class VulkanInstance
@@ -11,6 +11,8 @@ class VulkanInstance
   public:
     VulkanInstance();
     ~VulkanInstance();
+
+    inline VkInstance get() const noexcept { return m_vkInstance; }
 
   private:
     struct QueueFamilyIndices

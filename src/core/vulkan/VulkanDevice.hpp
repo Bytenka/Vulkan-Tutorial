@@ -12,11 +12,16 @@ class VulkanDevice
     struct QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamilyIndex;
-        inline bool isComplete() const noexcept { return graphicsFamilyIndex.has_value(); }
+        std::optional<uint32_t> presentationFamilyIndex;
+        inline bool isComplete() const noexcept
+        {
+            return graphicsFamilyIndex.has_value() && presentationFamilyIndex.has_value();
+        }
     };
 
   private:
     void selectPhysicalDevice(VkInstance instance);
+    void createLogicalDevice();
 
     VkPhysicalDevice getBestPhysicalDevice(const std::vector<VkPhysicalDevice>& physicalDevices) const noexcept;
     QueueFamilyIndices getPhysicalDeviceQueueFamilyIndices(VkPhysicalDevice physicalDevice) const noexcept;
@@ -24,6 +29,7 @@ class VulkanDevice
   private:
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
     VkDevice m_logicalDevice = VK_NULL_HANDLE;
+    VkQueue m_graphicsQueue;
 
   private:
   public:
